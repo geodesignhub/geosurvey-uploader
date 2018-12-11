@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
 			feature = geojson.loads(json.dumps(current_result['geojson']))
 			fc = FeatureCollection([feature])
-			fc_to_upload = geojson.dumps(fc)
+			fc_to_upload = json.loads(geojson.dumps(fc))
 			submissions_to_upload.append({"projectorpolicy":project_or_policy_or_skip, "featuretype":"polygon", "description":diagram_description, "sysid":selected_system_id, "geojson":fc_to_upload})
 
 
@@ -75,6 +75,11 @@ if __name__ == "__main__":
 		if config.apisettings['dryrun']:
 			print(current_submission_to_upload)
 		else:
-			upload = myAPIHelper.post_as_diagram(geoms = current_submission_to_upload['geojson'], projectorpolicy= current_submission_to_upload['projectorpolicy'],featuretype = current_submission_to_upload['featuretype'], description= current_submission_to_upload['description'], sysid = current_submission_to_upload['sysid'] )
-			print(upload.text)
+			try:
+				upload = myAPIHelper.post_as_diagram(geoms = current_submission_to_upload['geojson'], projectorpolicy= current_submission_to_upload['projectorpolicy'],featuretype = current_submission_to_upload['featuretype'], description= current_submission_to_upload['description'], sysid = current_submission_to_upload['sysid'] )
+			except Exception as e: 
+				print("Error in upload :" % e)
+			else:
+				print(upload.text)
+			
 			
