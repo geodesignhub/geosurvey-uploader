@@ -6,11 +6,40 @@ from geojson import FeatureCollection
 #
 import requests, json, math
 
+import os
+import time
+import logging
+import logging.handlers
+
+class ScriptLogger():
+    def __init__(self):
+        self.log_file_name = 'logs/latest.log'
+        self.path = os.getcwd()
+        self.logpath = os.path.join(self.path, 'logs')
+        if not os.path.exists(self.logpath):
+            os.mkdir(self.logpath)
+        self.logging_level = logging.INFO
+        # set TimedRotatingFileHandler for root
+        self.formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
+        # use very short interval for this example, typical 'when' would be 'midnight' and no explicit interval
+        self.handler = logging.handlers.TimedRotatingFileHandler(self.log_file_name, when="S", interval=30, backupCount=10)
+        self.handler.setFormatter(self.formatter)
+        self.logger = logging.getLogger() # or pass string to give it a name
+        self.logger.addHandler(self.handler)
+        self.logger.setLevel(self.logging_level)
+    def getLogger(self):
+        return self.logger
+
+
+
+
 if __name__ == "__main__":
 	
 	myAPIHelper = GeodesignHub.GeodesignHubClient(url = config.apisettings['serviceurl'], project_id=config.apisettings['projectid'], token=config.apisettings['apitoken'])
 	counter =0
 
+	myLogger = ScriptLogger()
+	logger = myLogger.getLogger()
 	session = requests.Session()
 
 
@@ -68,8 +97,6 @@ if __name__ == "__main__":
 			fc = FeatureCollection([feature])
 			fc_to_upload = json.loads(geojson.dumps(fc))
 			submissions_to_upload.append({"projectorpolicy":project_or_policy_or_skip, "featuretype":"polygon", "description":diagram_description, "sysid":selected_system_id, "geojson":fc_to_upload})
-
-
 
 	for current_submission_to_upload in submissions_to_upload:
 		if config.apisettings['dryrun']:
