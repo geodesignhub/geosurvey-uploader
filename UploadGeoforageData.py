@@ -41,7 +41,7 @@ if __name__ == "__main__":
 	myLogger = ScriptLogger()
 	logger = myLogger.getLogger()
 	session = requests.Session()
-
+	logger.info("Starting job")
 
 	def get_jobs(page =0):
 		url = "https://www.geoforage.io/api/v1/surveys/8e205b3f-e601-4528-b5a7-2a020a17101c/responses/list" 
@@ -56,30 +56,32 @@ if __name__ == "__main__":
 
 
 	downloaded_data_results = []
+	
 	for page in get_jobs():
 			downloaded_data_results += page['results']
-
+	logger.info("Downloaded %s responses from survey" % len(downloaded_data_results))
 	# with open('downloaded_data.json','w') as ipfile:
 	# 	ipfile.write(json.dumps(downloaded_data_results))
 	submissions_to_upload = []
 
+	logger.info("Downloading project systems")
 	systems_response = myAPIHelper.get_systems()
 	system_list = []
 	system_options = []
 	counter = 0
-	
 	if systems_response.status_code == 200:
 		systems_response_json = json.loads(systems_response.text)
 		for system in systems_response_json: 
 			system_list.append({'system_id':system['id'], 'system_name':system['sysname'], 'counter':counter})
 			system_options.append(system['sysname'])
 			counter+= 1
+	else:
+		logger.error("Error in downloading systems: %s" % systems_response.text)
 
-
+	
 	project_or_policy_options = ['project', 'policy', 'DO NOT ADD']
 
-	for current_result in downloaded_data_results:		
-		
+	for current_result in downloaded_data_results:				
 		project_or_policy_or_skip, project_or_policy_or_skip_index = pick(project_or_policy_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
 
 		if project_or_policy_or_skip_index != 2:
@@ -106,7 +108,9 @@ if __name__ == "__main__":
 				upload = myAPIHelper.post_as_diagram(geoms = current_submission_to_upload['geojson'], projectorpolicy= current_submission_to_upload['projectorpolicy'],featuretype = current_submission_to_upload['featuretype'], description= current_submission_to_upload['description'], sysid = current_submission_to_upload['sysid'] )
 			except Exception as e: 
 				print("Error in upload :" % e)
+				logging.error("Error in upload %s" % e)
 			else:
 				print(upload.text)
+				logging.log(upload.text)
 			
 			
