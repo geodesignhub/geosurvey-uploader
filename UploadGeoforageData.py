@@ -111,6 +111,5 @@ if __name__ == "__main__":
 				logging.error("Error in upload %s" % e)
 			else:
 				print(upload.text)
-				logging.log(upload.text)
-			
+				
 			
