@@ -44,7 +44,7 @@ if __name__ == "__main__":
 	logger.info("Starting job")
 
 	def get_jobs(page =0):
-		url = "https://www.geoforage.io/api/v1/surveys/8e205b3f-e601-4528-b5a7-2a020a17101c/responses/list" 
+		url = config.apisettings['job_url']		
 		first_page = session.get(url).json()
 		yield first_page
 		count = math.ceil(first_page['count']/10)
