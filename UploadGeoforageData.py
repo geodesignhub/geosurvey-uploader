@@ -87,9 +87,10 @@ if __name__ == "__main__":
 	for current_result in downloaded_data_results:				
 		project_or_policy_or_skip, project_or_policy_or_skip_index = pick(project_or_policy_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
 				
-		funding_type, funding_type_index = pick(funding_type_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
-		funding_type = funding_type_dict[funding_type]
 		if project_or_policy_or_skip_index != 2:
+			funding_type, funding_type_index = pick(funding_type_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
+			funding_type = funding_type_dict[funding_type]
+			
 			selected_system_option, selected_system_index = pick(system_options, 'Title: ' + current_result['comment'] + '\nCategory: ' + current_result['category'])
 			system_list_filtered = list(filter(lambda x: x['counter'] == selected_system_index, system_list))
 			selected_system_id = system_list_filtered[0]['system_id']
@@ -103,14 +104,14 @@ if __name__ == "__main__":
 			feature = geojson.loads(json.dumps(current_result['geojson']))
 			fc = FeatureCollection([feature])
 			fc_to_upload = json.loads(geojson.dumps(fc))
-			submissions_to_upload.append({"projectorpolicy":project_or_policy_or_skip, "featuretype":"polygon", "description":diagram_description, "sysid":selected_system_id, "geojson":fc_to_upload})
+			submissions_to_upload.append({"projectorpolicy":project_or_policy_or_skip, "featuretype":"polygon", "description":diagram_description, "sysid":selected_system_id, "geojson":fc_to_upload, "funding_type":funding_type})
 
 	for current_submission_to_upload in submissions_to_upload:
 		if config.apisettings['dryrun']:
 			print(current_submission_to_upload)
 		else:
 			try:
-				upload = myAPIHelper.post_as_diagram(geoms = current_submission_to_upload['geojson'], projectorpolicy= current_submission_to_upload['projectorpolicy'],featuretype = current_submission_to_upload['featuretype'], description= current_submission_to_upload['description'], sysid = current_submission_to_upload['sysid'], fundingtype = funding_type)
+				upload = myAPIHelper.post_as_diagram(geoms = current_submission_to_upload['geojson'], projectorpolicy= current_submission_to_upload['projectorpolicy'],featuretype = current_submission_to_upload['featuretype'], description= current_submission_to_upload['description'], sysid = current_submission_to_upload['sysid'], fundingtype = current_submission_to_upload["funding_type"])
 			except Exception as e: 
 				print("Error in upload :" % e)
 				logging.error("Error in upload %s" % e)
