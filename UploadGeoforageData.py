@@ -78,12 +78,17 @@ if __name__ == "__main__":
 	else:
 		logger.error("Error in downloading systems: %s" % systems_response.text)
 
-	
+	funding_type_dict = {'budgeted':'b','public':'pu', 'private':'pr', 'public-private':'pp', 'other':'o','unknown':'u'}
+
 	project_or_policy_options = ['project', 'policy', 'DO NOT ADD']
+
+	funding_type_options = ['budgeted', 'public', 'private', 'public-private','other', 'unknown']
 
 	for current_result in downloaded_data_results:				
 		project_or_policy_or_skip, project_or_policy_or_skip_index = pick(project_or_policy_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
-
+				
+		funding_type, funding_type_index = pick(funding_type_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
+		funding_type = funding_type_dict[funding_type]
 		if project_or_policy_or_skip_index != 2:
 			selected_system_option, selected_system_index = pick(system_options, 'Title: ' + current_result['comment'] + '\nCategory: ' + current_result['category'])
 			system_list_filtered = list(filter(lambda x: x['counter'] == selected_system_index, system_list))
@@ -105,7 +110,7 @@ if __name__ == "__main__":
 			print(current_submission_to_upload)
 		else:
 			try:
-				upload = myAPIHelper.post_as_diagram(geoms = current_submission_to_upload['geojson'], projectorpolicy= current_submission_to_upload['projectorpolicy'],featuretype = current_submission_to_upload['featuretype'], description= current_submission_to_upload['description'], sysid = current_submission_to_upload['sysid'] )
+				upload = myAPIHelper.post_as_diagram(geoms = current_submission_to_upload['geojson'], projectorpolicy= current_submission_to_upload['projectorpolicy'],featuretype = current_submission_to_upload['featuretype'], description= current_submission_to_upload['description'], sysid = current_submission_to_upload['sysid'], fundingtype = funding_type)
 			except Exception as e: 
 				print("Error in upload :" % e)
 				logging.error("Error in upload %s" % e)
