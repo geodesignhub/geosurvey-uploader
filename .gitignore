@@ -6,7 +6,7 @@ __pycache__/
 *.json
 # C extensions
 *.so
-
+downloaded_data.gpkg
 # Distribution / packaging
 .Python
 build/
