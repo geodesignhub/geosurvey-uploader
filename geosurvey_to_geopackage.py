@@ -19,7 +19,6 @@ if __name__ == "__main__":
 		count = math.ceil(first_page['count']/10)
 
 		for page in range(2, count + 1):
-
 			next_page = session.get(url, params={'page': page}).json()
 			yield next_page
 
@@ -36,8 +35,7 @@ if __name__ == "__main__":
 		'properties': {'id':'str', 'comment':'str','category':'str','date_added':'str'}
 	}
 	crs = from_string("+datum=WGS84 +ellps=WGS84 +no_defs +proj=longlat")
-	with collection('downloaded_data.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema) as c:
-		## If there are multiple geometries, put the "for" loop here
+	with collection('downloaded_data.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema) as c:		
 		for curPoly in downloaded_data_results:
 			s = asShape(curPoly['geojson']['geometry'])
 			c.write({
