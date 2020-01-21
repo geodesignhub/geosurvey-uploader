@@ -2,7 +2,7 @@ import requests, json
 
 class GeodesignHubClient():
 	'''
-	This a a Python client that uses the Geodesign Hub API to make calls
+	This a a Python client that uses the Geodesignhub API to make calls
 	and return data. It requires the requests package and the json module. 
 
 	'''
