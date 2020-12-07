@@ -85,10 +85,10 @@ if __name__ == "__main__":
 	funding_type_options = ['budgeted', 'public', 'private', 'public-private','other', 'unknown']
 
 	for current_result in downloaded_data_results:				
-		project_or_policy_or_skip, project_or_policy_or_skip_index = pick(project_or_policy_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
+		project_or_policy_or_skip, project_or_policy_or_skip_index = pick(project_or_policy_options, 'Title: ' + current_result['comment']+ '\nCategory:' + current_result['category'])
 				
 		if project_or_policy_or_skip_index != 2:
-			funding_type, funding_type_index = pick(funding_type_options, 'Title:' + current_result['comment']+ '\nCategory:' + current_result['category'])
+			funding_type, funding_type_index = pick(funding_type_options, 'Title: ' + current_result['comment']+ '\nCategory:' + current_result['category'])
 			funding_type = funding_type_dict[funding_type]
 			
 			selected_system_option, selected_system_index = pick(system_options, 'Title: ' + current_result['comment'] + '\nCategory: ' + current_result['category'])

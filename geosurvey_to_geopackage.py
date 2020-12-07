@@ -30,15 +30,31 @@ if __name__ == "__main__":
 	print("Downloaded %s responses from survey" % len(downloaded_data_results))
 
 
-	schema = {
+	schema_polygon = {
 		'geometry': 'Polygon',
 		'properties': {'id':'str', 'comment':'str','category':'str','date_added':'str'}
 	}
+	
+	schema_polyline = {
+		'geometry': 'LineString',
+		'properties': {'id':'str', 'comment':'str','category':'str','date_added':'str'}
+	}
 	crs = from_string("+datum=WGS84 +ellps=WGS84 +no_defs +proj=longlat")
-	with collection('downloaded_data.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema) as c:		
+
+	with collection('downloaded_data_polygons.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polygon) as c:		
 		for curPoly in downloaded_data_results:
 			s = asShape(curPoly['geojson']['geometry'])
-			c.write({
-				'geometry': mapping(s),
-				'properties': {'id': curPoly['id'], 'comment':curPoly['comment'], 'category':curPoly['category'], 'date_added':curPoly['date_added']}
-				})
+			if s.geom_type == 'Polygon':
+				c.write({
+					'geometry': mapping(s),
+					'properties': {'id': curPoly['id'], 'comment':curPoly['comment'], 'category':curPoly['category'], 'date_added':curPoly['date_added']}
+					})
+	
+	with collection('downloaded_data_lines.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polyline) as c:		
+		for cur_line in downloaded_data_results:
+			s = asShape(cur_line['geojson']['geometry'])
+			if s.geom_type == 'LineString':
+				c.write({
+					'geometry': mapping(s),
+					'properties': {'id': cur_line['id'], 'comment':cur_line['comment'], 'category':cur_line['category'], 'date_added':cur_line['date_added']}
+					})
