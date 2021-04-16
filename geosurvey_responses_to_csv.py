@@ -24,10 +24,10 @@ if __name__ == "__main__":
         downloaded_data_results += page['results']
 
     print("Downloaded %s responses from survey" % len(downloaded_data_results))
-
-    with open('survey_results.csv', mode='w') as survey_results:
-        employee_writer = csv.writer(survey_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    
+    with open('survey_responses.csv', mode='w') as survey_results:
+        survey_results_writer = csv.writer(survey_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         
-        employee_writer.writerow(['Comment', 'Category', 'Date-Time added'])
+        survey_results_writer.writerow(['id','Response', 'Category','Upvotes','Downvotes','Comment Count','Open Location Code', 'Date-Time added'])
         for current_row in downloaded_data_results:
-            employee_writer.writerow([current_row['comment'], current_row['category'], current_row['date_added']])
+            survey_results_writer.writerow([current_row['id'],current_row['comment'], current_row['category'],current_row['upvotes'],current_row['downvotes'],current_row['comment_count'],current_row['open_location_code'], current_row['date_added']])
