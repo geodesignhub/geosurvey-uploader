@@ -1,8 +1,9 @@
-import json
+
 import config
 import requests
 import csv
 import math
+from pathlib import Path
 
 if __name__ == "__main__":
 
@@ -25,7 +26,9 @@ if __name__ == "__main__":
 
     print("Downloaded %s responses from survey" % len(downloaded_data_results))
     
-    with open('survey_responses.csv', mode='w') as survey_results:
+    Path("downloaded_data").mkdir(parents=True, exist_ok=True)
+    
+    with open('downloaded_data/survey_responses.csv', mode='w') as survey_results:
         survey_results_writer = csv.writer(survey_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         
         survey_results_writer.writerow(['id','Response', 'Category','Upvotes','Downvotes','Comment Count','Open Location Code', 'Date-Time added'])

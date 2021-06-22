@@ -1,7 +1,7 @@
 import json
 import config
 import requests
-import csv
+
 import math
 from pathlib import Path
 
@@ -26,9 +26,9 @@ if __name__ == "__main__":
 
     print("Downloaded %s responses from survey" % len(downloaded_data_results))
        
-    Path("geojson").mkdir(parents=True, exist_ok=True)
+    Path("downloaded_data").mkdir(parents=True, exist_ok=True)
 
     for current_row in downloaded_data_results:        
         filename = current_row['comment'].replace(' ', '-').lower()[:20]
-        with open('geojson/' +filename+ '.geojson', mode='w') as geojson_output:
+        with open('downloaded_data/' +filename+ '.geojson', mode='w') as geojson_output:
             geojson_output.write(json.dumps(current_row['geojson']))

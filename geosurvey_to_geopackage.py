@@ -1,12 +1,12 @@
-import json
 import config
 import requests
 import math
-import shapely
-from shapely.geometry import shape, mapping, shape, asShape
-import fiona, json
+
+from shapely.geometry import mapping, shape, asShape
+import json
 from fiona import collection
 from fiona.crs import from_string
+from pathlib import Path
 
 if __name__ == "__main__":
 
@@ -41,7 +41,9 @@ if __name__ == "__main__":
 	}
 	crs = from_string("+datum=WGS84 +ellps=WGS84 +no_defs +proj=longlat")
 
-	with collection('downloaded_data_polygons.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polygon) as c:		
+    Path("downloaded_data").mkdir(parents=True, exist_ok=True)
+	
+	with collection('downloaded_data/downloaded_data_polygons.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polygon) as c:		
 		for curPoly in downloaded_data_results:
 			s = asShape(curPoly['geojson']['geometry'])
 			if s.geom_type == 'Polygon':
@@ -50,7 +52,7 @@ if __name__ == "__main__":
 					'properties': {'id': curPoly['id'], 'comment':curPoly['comment'], 'category':curPoly['category'], 'date_added':curPoly['date_added']}
 					})
 	
-	with collection('downloaded_data_lines.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polyline) as c:		
+	with collection('downloaded_data/downloaded_data_lines.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polyline) as c:		
 		for cur_line in downloaded_data_results:
 			s = asShape(cur_line['geojson']['geometry'])
 			if s.geom_type == 'LineString':
