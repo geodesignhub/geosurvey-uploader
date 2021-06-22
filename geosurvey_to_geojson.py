@@ -4,6 +4,7 @@ import requests
 
 import math
 from pathlib import Path
+import re
 
 if __name__ == "__main__":
 
@@ -26,10 +27,10 @@ if __name__ == "__main__":
 
     print("Downloaded %s responses from survey" % len(downloaded_data_results))
        
-    Path("downloaded_data").mkdir(parents=True, exist_ok=True)
+    Path("downloaded_data/geojson").mkdir(parents=True, exist_ok=True)
 
-    for current_row in downloaded_data_results:      
+    for current_row in downloaded_data_results:        
         filename = current_row['comment'][:20]
-        filename = ''.join(e for e in filename if e.isalnum())
-        with open('downloaded_data/' +filename+ '.geojson', mode='w') as geojson_output:
+        filename = re.sub('\W+',' ', filename )
+        with open('downloaded_data/geojson/' + filename + '.geojson', mode='w') as geojson_output:
             geojson_output.write(json.dumps(current_row['geojson']))
