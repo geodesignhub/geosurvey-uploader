@@ -41,12 +41,20 @@ if __name__ == "__main__":
 	}
 	crs = from_string("+datum=WGS84 +ellps=WGS84 +no_defs +proj=longlat")
 
-    Path("downloaded_data").mkdir(parents=True, exist_ok=True)
+	Path("downloaded_data").mkdir(parents=True, exist_ok=True)
 	
 	with collection('downloaded_data/downloaded_data_polygons.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polygon) as c:		
 		for curPoly in downloaded_data_results:
 			s = asShape(curPoly['geojson']['geometry'])
-			if s.geom_type == 'Polygon':
+			
+			if s.geom_type == 'MultiPolygon':
+				polygons = list(s)
+				for poly in polygons:
+					c.write({
+						'geometry': mapping(poly),
+						'properties': {'id': curPoly['id'], 'comment':curPoly['comment'], 'category':curPoly['category'], 'date_added':curPoly['date_added']}
+						})
+			elif s.geom_type == 'Polygon':
 				c.write({
 					'geometry': mapping(s),
 					'properties': {'id': curPoly['id'], 'comment':curPoly['comment'], 'category':curPoly['category'], 'date_added':curPoly['date_added']}
