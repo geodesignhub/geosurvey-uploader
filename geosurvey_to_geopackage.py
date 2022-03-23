@@ -2,7 +2,7 @@ import config
 import requests
 import math
 
-from shapely.geometry import mapping, shape, asShape
+from shapely.geometry import mapping, shape
 import json
 from fiona import collection
 from fiona.crs import from_string
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 	
 	with collection('downloaded_data/downloaded_data_polygons.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polygon) as c:		
 		for curPoly in downloaded_data_results:
-			s = asShape(curPoly['geojson']['geometry'])
+			s = shape(curPoly['geojson']['geometry'])
 			
 			if s.geom_type == 'MultiPolygon':
 				polygons = list(s)
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 	
 	with collection('downloaded_data/downloaded_data_lines.gpkg', 'w', driver='GPKG',crs=crs, layer = 'polygons',schema=schema_polyline) as c:		
 		for cur_line in downloaded_data_results:
-			s = asShape(cur_line['geojson']['geometry'])
+			s = shape(cur_line['geojson']['geometry'])
 			if s.geom_type == 'LineString':
 				c.write({
 					'geometry': mapping(s),
