@@ -65,7 +65,7 @@ if __name__ == "__main__":
 	submissions_to_upload = []
 
 	logger.info("Downloading project systems")
-	systems_response = myAPIHelper.get_systems()
+	systems_response = myAPIHelper.get_all_systems()
 	system_list = []
 	system_options = []
 	counter = 0
@@ -116,6 +116,6 @@ if __name__ == "__main__":
 				print("Error in upload :" % e)
 				logging.error("Error in upload %s" % e)
 			else:
-				print(upload.text)
+				print(upload.json)
 				
 			
