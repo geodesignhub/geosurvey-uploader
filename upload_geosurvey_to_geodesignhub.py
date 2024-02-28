@@ -116,6 +116,6 @@ if __name__ == "__main__":
 				print("Error in upload :" % e)
 				logging.error("Error in upload %s" % e)
 			else:
-				print(upload.json)
+				print(upload.json())
 				
 			
