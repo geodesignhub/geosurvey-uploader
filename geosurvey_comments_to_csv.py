@@ -8,14 +8,20 @@ if __name__ == "__main__":
 
     session = requests.Session()
 
+    token = config.apisettings['apitoken']
+    token_string = 'Token {auth_token}'.format(auth_token = token)
+    headers = {
+        'Authorization': token_string
+    }
+
     def get_jobs(page=0):
         url = config.apisettings['comments_url']
-        first_page = session.get(url).json()
+        first_page = session.get(url ,headers= headers).json()
         yield first_page
         count = math.ceil(first_page['count']/10)
 
         for page in range(2, count + 1):
-            next_page = session.get(url, params={'page': page}).json()
+            next_page = session.get(url,  headers= headers,params={'page': page}).json()
             yield next_page
 
     downloaded_data_results = []
