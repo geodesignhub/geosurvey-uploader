@@ -41,6 +41,8 @@ if __name__ == "__main__":
 	myLogger = ScriptLogger()
 	logger = myLogger.getLogger()
 	session = requests.Session()
+	headers = {'Authorization': 'Token '+config.apisettings['apitoken']}
+	session.headers = headers
 	logger.info("Starting job")
 
 	def get_jobs(page =0):
