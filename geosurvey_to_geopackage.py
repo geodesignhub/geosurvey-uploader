@@ -18,14 +18,16 @@ if __name__ == "__main__":
         'Authorization': token_string
     }
 
+	session.headers = headers
+
 	def get_jobs(page=0):
 		url = config.apisettings['job_url']
-		first_page = session.get(url,headers= headers).json()
+		first_page = session.get(url).json()
 		yield first_page
 		count = math.ceil(first_page['count']/10)
 
 		for page in range(2, count + 1):
-			next_page = session.get(url,headers= headers, params={'page': page}).json()
+			next_page = session.get(url, params={'page': page}).json()
 			yield next_page
 
 	downloaded_data_results = []
