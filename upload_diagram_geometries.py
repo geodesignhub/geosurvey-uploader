@@ -1,16 +1,12 @@
-import requests, json, GeodesignHub, config, geojson
-from pick import pick
-from geojson import FeatureCollection
-
-# A sample script to take a diagram from Geodesign Hub, buffer it and send
-# it back as a new diagram using the API.
-#
-import requests, json, math
-
+import json
 import os
-import time
 import logging
 import logging.handlers
+
+import requests
+import GeodesignHub
+import config
+from pick import pick
 
 
 class ScriptLogger:
@@ -45,7 +41,6 @@ if __name__ == "__main__":
         project_id=config.apisettings["projectid"],
         token=config.apisettings["apitoken"],
     )
-    counter = 0
 
     myLogger = ScriptLogger()
     logger = myLogger.getLogger()
@@ -54,43 +49,22 @@ if __name__ == "__main__":
     session.headers = headers
     logger.info("Starting job")
 
-    def get_jobs(page=0):
-        url = config.apisettings["job_url"]
-        first_page = session.get(url).json()
-        yield first_page
-        count = math.ceil(first_page["count"] / 10)
-
-        for page in range(2, count + 1):
-
-            next_page = session.get(url, params={"page": page}).json()
-            yield next_page
-
-    downloaded_data_results = []
-
-    for page in get_jobs():
-        downloaded_data_results += page["results"]
-    logger.info("Downloaded %s responses from survey" % len(downloaded_data_results))
-    # with open('downloaded_data.json','w') as ipfile:
-    # 	ipfile.write(json.dumps(downloaded_data_results))
     submissions_to_upload = []
 
     logger.info("Downloading project systems")
     systems_response = myAPIHelper.get_all_systems()
     system_list = []
     system_options = []
-    counter = 0
     if systems_response.status_code == 200:
         systems_response_json = json.loads(systems_response.text)
         for system in systems_response_json:
             system_list.append(
                 {
                     "system_id": system["id"],
-                    "system_name": system["sysname"],
-                    "counter": counter,
+                    "system_name": system["name"],
                 }
             )
-            system_options.append(system["sysname"])
-            counter += 1
+            system_options.append(system["name"])
     else:
         logger.error("Error in downloading systems: %s" % systems_response.text)
 
@@ -113,12 +87,20 @@ if __name__ == "__main__":
         "other",
         "unknown",
     ]
+    swe_files = []
+    base_folder = config.apisettings["swe_diagram_folder"]
+    for root, dirs, files in os.walk(base_folder):
+        for f in files:
+            if f.endswith(".json") or f.endswith(".geojson"):
+                category = os.path.basename(root)
+                title = os.path.splitext(f)[0]
+                swe_files.append({"path": os.path.join(root, f), "title": title, "category": category})
 
-    for current_result in downloaded_data_results:
+    for current_result in swe_files:
         project_or_policy_or_skip, project_or_policy_or_skip_index = pick(
             project_or_policy_options,
             "Title: "
-            + current_result["comment"]
+            + current_result["title"]
             + "\nCategory:"
             + current_result["category"],
         )
@@ -127,37 +109,30 @@ if __name__ == "__main__":
             funding_type, funding_type_index = pick(
                 funding_type_options,
                 "Title: "
-                + current_result["comment"]
+                + current_result["title"]
                 + "\nCategory:"
                 + current_result["category"],
             )
             funding_type = funding_type_dict[funding_type]
 
-            selected_system_option, selected_system_index = pick(
+            selected_system_name, selected_system_index = pick(
                 system_options,
                 "Title: "
-                + current_result["comment"]
+                + current_result["title"]
                 + "\nCategory: "
                 + current_result["category"],
             )
             system_list_filtered = list(
-                filter(lambda x: x["counter"] == selected_system_index, system_list)
+                filter(lambda x: x["system_name"] == selected_system_name, system_list)
             )
             selected_system_id = system_list_filtered[0]["system_id"]
-            diagram_description = current_result["comment"]
+            diagram_description = current_result["title"].replace("_", " ")
 
-            if diagram_description is not None:
-                diagram_description = (
-                    (diagram_description[:50] + "..")
-                    if len(diagram_description) > 50
-                    else diagram_description
-                )
-            else:
-                diagram_description = "Externally added Diagram."
+            if len(diagram_description) > 50:
+                diagram_description = diagram_description[:50] + ".."
 
-            feature = geojson.loads(json.dumps(current_result["geojson"]))
-            fc = FeatureCollection([feature])
-            fc_to_upload = json.loads(geojson.dumps(fc))
+            with open(current_result["path"]) as geojson_file:
+                fc_to_upload = json.load(geojson_file)
             submissions_to_upload.append(
                 {
                     "projectorpolicy": project_or_policy_or_skip,
